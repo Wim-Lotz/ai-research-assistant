@@ -19,13 +19,17 @@ This is a teaching and portfolio project. The goal is to learn the full AI engin
 - **ReAct agentic loops** — how you go from a single LLM call to an AI that can reason and act over multiple steps.
 
 **What each remaining roadmap item teaches:**
-- **MCP Server + Azure OpenAI** — MCP is the emerging standard for giving agents access to tools and data sources. Azure OpenAI is what most enterprises actually use. Together they teach hybrid retrieval: combining structured SQL queries with semantic vector search.
-- **ML.NET classifier** — the distinction between *using* AI (calling an LLM API) and *understanding* ML (training models, feature engineering, inference pipelines). Teaches how a trained model integrates into a data pipeline.
+- **MCP Server** — the emerging standard for giving agents access to tools and data sources. Teaches structured SQL queries from an agent, and hybrid retrieval when combined with Qdrant semantic search.
+- **Unstructured data ingestion** — sourcing real sci-fi reviews and articles to stress-test the semantic search side of the stack. Structured SQL data (movies) does not require semantic search — unstructured text does.
+- **ML.NET classifier** — classifying ingested unstructured documents on their way into Qdrant (e.g. "is this a review, an article, a plot summary?"). Only needed once unstructured data exists — ML classification adds nothing when data already has structured metadata.
+- **Azure OpenAI** — swapping Ollama for the provider enterprises actually use. Teaches provider abstraction and cloud LLM integration.
 - **Avalonia UI** — building what the business stakeholder actually sees; also teaches streaming responses.
 - **Source attribution** — a real enterprise requirement: did this answer come from the knowledge base or the model's training data? Relevant for compliance and audit trails.
 - **gRPC** — how AI services communicate in a microservices architecture at large companies.
 
-**Suggested build order:** MCP Server + Azure OpenAI → ML.NET classifier → Avalonia UI → source attribution + gRPC.
+**The motivating query** (what this stack will be able to answer when complete): *"Give me sci-fi movies from the last 20 years with good reviews — cyberpunk style, like Altered Carbon."* This requires SQL (genre, year, rating) + semantic search (themes, tone, style) + ML classification (scoping search to the right document types) all working together through the agent.
+
+**Build order:** MCP Server → unstructured data ingestion → ML.NET classifier → Azure OpenAI → Avalonia UI → source attribution + gRPC.
 
 ## Tech Stack
 
@@ -75,9 +79,10 @@ Vertical slice architecture under `/Features`. Each feature folder contains ever
 ## Remaining Roadmap
 
 1. **MCP Server** — DAB (Data API Builder) in Docker on top of SQL Server, MCP server in Docker, new agent tool `query_movies_database`
-2. **ML.NET** — document classifier on ingestion
-3. **Avalonia UI** — desktop chat interface wired to REST API
+2. **Unstructured data ingestion** — source real sci-fi reviews and articles (e.g. Roger Ebert reviews, Wikipedia plot summaries), ingest into Qdrant
+3. **ML.NET classifier** — classify unstructured documents on ingestion (review vs article vs plot summary) so semantic search can be scoped by document type
 4. **Azure OpenAI** — implement `AzureOpenAILanguageModelService`
+5. **Avalonia UI** — desktop chat interface wired to REST API
 
 ## Backlog
 
