@@ -31,6 +31,41 @@ dotnet run --project src/ResearchAssistant.Api/ResearchAssistant.Api.csproj
 
 API listens on `http://localhost:5190`.
 
+## Architecture
+
+Vertical slice architecture under `/Features`. Each feature folder contains everything for that feature (endpoint, request, response, any feature-specific services). Shared AI infrastructure lives in `/Infrastructure`.
+
+**Do not** reorganise into Clean Architecture layers (no `/Controllers`, `/Services`, `/Repositories` folders).
+
+## What Has Been Built
+
+- GET `/health` — health check
+- POST `/generate` — raw LLM generation
+- POST `/ingest` — ingest text into Qdrant
+- POST `/ingest/movies` — ingest movies from SQL Server into Qdrant
+- POST `/search` — semantic search against Qdrant
+- POST `/rag` — full RAG pipeline (embed → search → augment → generate)
+- POST `/agent` — ReAct agentic loop with tool calling
+
+## Remaining Roadmap
+
+1. **MCP Server** — DAB (Data API Builder) in Docker on top of SQL Server, MCP server in Docker, new agent tool `query_movies_database`
+2. **ML.NET** — document classifier on ingestion
+3. **Avalonia UI** — desktop chat interface wired to REST API
+4. **Azure OpenAI** — implement `AzureOpenAILanguageModelService`
+
+## Backlog
+
+- Agent response should indicate source (knowledge base vs training knowledge)
+- Clean old test documents from Qdrant (machine learning, vector db, docker text entries)
+- Add gRPC endpoints alongside REST
+
+## Data
+
+SQL Server contains 15 movies with directors, actors, genres, reviews.
+Movies are also ingested into Qdrant with rich text for semantic search.
+This enables both structured queries (via MCP/SQL) and semantic queries (via RAG/Qdrant).
+
 ## Switching AI Provider
 
 Set `AI:Provider` in `appsettings.json` to `"Ollama"` (default) or `"AzureOpenAI"`. **Azure OpenAI is not implemented** — its service throws `NotImplementedException`. Only Ollama works.
