@@ -10,6 +10,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - No vibe coding — code quality and understanding over speed.
 - Self-documenting code — no comments or XML docs needed.
 
+## Setup Philosophy
+
+**The entire project must be runnable with only Docker Desktop and the .NET SDK installed.** No manual database steps, no pre-configured external services, no undocumented prerequisites.
+
+This means:
+- All infrastructure (Qdrant, SQL Server, MCP server, DAB) runs in Docker Compose
+- SQL schema and seed data execute automatically on first `docker compose up` — never require manual script execution
+- Ollama model pulls are documented as a single copy-paste block
+- The README must be good enough that someone who has never seen the project can clone it and have it running within minutes
+
+**The current manual SQL setup step violates this** — `docker/sql/01_schema.sql` and `02_seed.sql` must be wired into Docker Compose init scripts before the project is considered complete.
+
+The README is written last, once the full stack is built, and covers: prerequisites, one-command startup, what each component does, and example queries including the Altered Carbon-style query.
+
 ## Project Purpose
 
 This is a teaching and portfolio project. The goal is to learn the full AI engineering stack to a level where the developer can help companies implement AI solutions. Breadth of AI concepts matters more than polish. Always explain *why* a pattern exists and what problem it solves in a real company context, not just how to implement it.
