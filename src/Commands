@@ -1,0 +1,1 @@
+﻿docker compose -f ~/projects/research-assistant/docker/docker-compose.yml up -d

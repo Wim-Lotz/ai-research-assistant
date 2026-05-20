@@ -1,0 +1,136 @@
+@host = http://localhost:5190
+
+GET {{host}}/health
+Accept: application/json
+
+###
+
+POST {{host}}/generate
+Content-Type: application/json
+
+{
+  "prompt": "What is a vector database?"
+}
+
+###
+
+GET http://localhost:6333/collections
+Accept: application/json
+
+###
+
+POST http://localhost:5190/ingest
+Content-Type: application/json
+
+{
+  "text": "A vector database stores and searches high dimensional vectors efficiently using similarity search algorithms like cosine similarity."
+}
+
+###
+
+POST http://localhost:5190/ingest
+Content-Type: application/json
+
+{
+  "text": "Machine learning is a subset of artificial intelligence that enables systems to learn and improve from experience without being explicitly programmed."
+}
+
+###
+
+POST http://localhost:5190/ingest
+Content-Type: application/json
+
+{
+  "text": "Docker containers package software and its dependencies together, ensuring consistent behaviour across different computing environments."
+}
+
+###
+
+POST http://localhost:5190/search
+Content-Type: application/json
+
+{
+  "query": "what is machine learning?",
+  "limit": 3
+}
+
+###
+
+POST http://localhost:5190/search
+Content-Type: application/json
+
+{
+  "query": "how do containers work?",
+  "limit": 3
+}
+
+###
+
+# @timeout 120000
+
+POST http://localhost:5190/agent
+Content-Type: application/json
+
+{
+  "question": "what is machine learning?",
+  "contextLimit": 3
+}
+
+###
+
+POST http://localhost:5190/agent
+Content-Type: application/json
+
+{
+  "question": "why is the sky blue?",
+  "contextLimit": 3
+}
+
+###
+
+POST http://localhost:5190/rag
+Content-Type: application/json
+
+{
+  "question": "how does docker help developers?",
+  "contextLimit": 3
+}
+
+###
+
+# @timeout 120000
+
+POST http://localhost:5190/agent
+Content-Type: application/json
+
+{
+  "question": "how do containers work?"
+}
+
+###
+
+# @timeout 120000
+
+POST http://localhost:5190/ingest/movies
+
+###
+
+POST http://localhost:5190/rag
+Content-Type: application/json
+
+{
+  "question": "movies about space exploration",
+  "contextLimit": 3
+}
+
+###
+
+# @timeout 120000
+
+POST http://localhost:5190/rag
+Content-Type: application/json
+
+{
+  "question": "Christopher Nolan films about the human mind",
+  "contextLimit": 3
+}

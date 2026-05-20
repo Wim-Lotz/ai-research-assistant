@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <File Path="src/Commands" />
+    <Project Path="src/ResearchAssistant.Api/ResearchAssistant.Api.csproj" />
+    <Project Path="src/ResearchAssistant.Shared/ResearchAssistant.Shared.csproj" />
+  </Folder>
+</Solution>
