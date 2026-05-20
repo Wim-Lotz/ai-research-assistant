@@ -2,6 +2,31 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Developer Profile
+
+- Senior C# backend developer — strong .NET background, no need to explain language basics.
+- New to AI concepts — explain AI patterns, terminology, and design decisions thoroughly.
+- Prefers to understand every line of code — do not generate large blocks without explanation.
+- No vibe coding — code quality and understanding over speed.
+- Self-documenting code — no comments or XML docs needed.
+
+## Project Purpose
+
+This is a teaching and portfolio project. The goal is to learn the full AI engineering stack to a level where the developer can help companies implement AI solutions. Breadth of AI concepts matters more than polish. Always explain *why* a pattern exists and what problem it solves in a real company context, not just how to implement it.
+
+**What has been learned so far:**
+- **RAG** — the most common pattern companies ask for: "we have documents, we want to query them with AI."
+- **ReAct agentic loops** — how you go from a single LLM call to an AI that can reason and act over multiple steps.
+
+**What each remaining roadmap item teaches:**
+- **MCP Server + Azure OpenAI** — MCP is the emerging standard for giving agents access to tools and data sources. Azure OpenAI is what most enterprises actually use. Together they teach hybrid retrieval: combining structured SQL queries with semantic vector search.
+- **ML.NET classifier** — the distinction between *using* AI (calling an LLM API) and *understanding* ML (training models, feature engineering, inference pipelines). Teaches how a trained model integrates into a data pipeline.
+- **Avalonia UI** — building what the business stakeholder actually sees; also teaches streaming responses.
+- **Source attribution** — a real enterprise requirement: did this answer come from the knowledge base or the model's training data? Relevant for compliance and audit trails.
+- **gRPC** — how AI services communicate in a microservices architecture at large companies.
+
+**Suggested build order:** MCP Server + Azure OpenAI → ML.NET classifier → Avalonia UI → source attribution + gRPC.
+
 ## Tech Stack
 
 C# 12 / .NET 10 REST API using **FastEndpoints** (not minimal APIs or controllers). Semantic search via **Qdrant** (vector DB), structured data via **SQL Server 2022**, local LLM inference via **Ollama**. Microsoft.Extensions.AI provides the LLM abstraction layer.
