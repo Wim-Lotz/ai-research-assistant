@@ -92,9 +92,26 @@ Vertical slice architecture under `/Features`. Each feature folder contains ever
 
 ## Data
 
-SQL Server contains 15 movies with directors, actors, genres, reviews.
-Movies are also ingested into Qdrant with rich text for semantic search.
-This enables both structured queries (via MCP/SQL) and semantic queries (via RAG/Qdrant).
+### Current (dev/demo only)
+SQL Server contains 15 movies with directors, actors, genres, reviews. Too small to be genuinely useful — exists only to validate the pipeline.
+
+### Target dataset (production-scale)
+The goal is a dataset large enough to actually use as a personal movie/TV assistant.
+
+**Structured data → SQL Server via IMDb datasets** (`datasets.imdb.com`)
+- Free, non-commercial use, downloadable TSV files
+- Covers movies and TV: titles, genres, ratings, cast, crew, release years
+- Millions of entries — replaces the current 15-movie seed data
+
+**Unstructured text → Qdrant via CMU Movie Summary Corpus**
+- ~42,000 Wikipedia plot summaries, public domain research dataset
+- Long-form text covering plot, themes, tone — enables semantic queries like "cyberpunk style, like Altered Carbon"
+- Supplement with Wikipedia API for TV series and newer titles not in the corpus
+
+**TMDB API** as a supplement for richer metadata (overviews, poster URLs, streaming availability) if needed.
+
+### Why both stores
+SQL handles exact structured queries ("sci-fi movies after 2005 with rating > 7"). Qdrant handles semantic queries ("cyberpunk themes, dystopian future, noir aesthetic"). The agent uses both and combines the results.
 
 ## Switching AI Provider
 
