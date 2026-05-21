@@ -29,6 +29,19 @@
       timeout: 5s
       retries: 10
 
+  dab:
+    image: mcr.microsoft.com/azure-databases/data-api-builder:latest
+    container_name: dab
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./dab-config.json:/App/dab-config.json
+    command: ["--ConfigFileName", "/App/dab-config.json"]
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   qdrant_storage:
   sqlserver_storage:
