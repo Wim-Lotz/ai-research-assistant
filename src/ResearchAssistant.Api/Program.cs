@@ -8,8 +8,10 @@ builder.AddFastEndpointsConfiguration();
 builder.Services.AddOpenApi();
 builder.AddAIConfiguration();
 builder.AddQdrantConfiguration();
+builder.AddMcpConfiguration();
 
 var app = builder.Build();
+
 
 if (app.Environment.IsDevelopment())
 {

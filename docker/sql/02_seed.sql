@@ -1,123 +1,97 @@
-USE ResearchAssistant;
+USE NexusSupport;
 GO
 
--- Genres
-INSERT INTO Genres (Name) VALUES
-('Action'), ('Drama'), ('Sci-Fi'), ('Thriller'), ('Comedy'),
-('Crime'), ('Adventure'), ('Animation'), ('Horror'), ('Romance');
+INSERT INTO Departments (Name) VALUES
+('IT Support'),
+('Network Operations'),
+('Security');
 
--- Directors
-INSERT INTO Directors (Name, Nationality, BirthYear) VALUES
-                                                         ('Christopher Nolan', 'British', 1970),
-                                                         ('Steven Spielberg', 'American', 1946),
-                                                         ('Martin Scorsese', 'American', 1942),
-                                                         ('Ridley Scott', 'British', 1937),
-                                                         ('James Cameron', 'Canadian', 1954),
-                                                         ('Quentin Tarantino', 'American', 1963),
-                                                         ('David Fincher', 'American', 1962),
-                                                         ('Denis Villeneuve', 'Canadian', 1967);
+INSERT INTO Employees (FirstName, LastName, Email, Role, DepartmentId, StartDate) VALUES
+('Sarah',  'Mitchell',   'sarah.mitchell@nexussupport.com',  'Support Manager',           1, '2019-03-15'),
+('James',  'Crawford',   'james.crawford@nexussupport.com',  'Senior Support Engineer',   1, '2020-06-01'),
+('Priya',  'Patel',      'priya.patel@nexussupport.com',     'Support Engineer',          1, '2021-09-12'),
+('Tom',    'Hargreaves', 'tom.hargreaves@nexussupport.com',  'Support Engineer',          1, '2022-01-10'),
+('Lucy',   'Okafor',     'lucy.okafor@nexussupport.com',     'Junior Support Engineer',   1, '2023-04-03'),
+('Marcus', 'Webb',       'marcus.webb@nexussupport.com',     'Network Manager',           2, '2018-11-20'),
+('Elena',  'Russo',      'elena.russo@nexussupport.com',     'Senior Network Engineer',   2, '2020-02-14'),
+('Danny',  'Choi',       'danny.choi@nexussupport.com',      'Network Engineer',          2, '2021-07-19'),
+('Fiona',  'Blake',      'fiona.blake@nexussupport.com',     'Network Engineer',          2, '2022-05-30'),
+('Ahmed',  'Hassan',     'ahmed.hassan@nexussupport.com',    'Security Manager',          3, '2017-08-07'),
+('Claire', 'Sutton',     'claire.sutton@nexussupport.com',   'Senior Security Analyst',   3, '2019-12-01'),
+('Raj',    'Sharma',     'raj.sharma@nexussupport.com',      'Security Analyst',          3, '2021-03-22'),
+('Zoe',    'Fleming',    'zoe.fleming@nexussupport.com',     'Security Analyst',          3, '2022-08-15'),
+('Ben',    'Thornton',   'ben.thornton@nexussupport.com',    'IT Manager',                1, '2016-05-11'),
+('Nina',   'Castillo',   'nina.castillo@nexussupport.com',   'Support Engineer',          1, '2023-10-02');
 
--- Actors
-INSERT INTO Actors (Name, Nationality, BirthYear) VALUES
-                                                      ('Leonardo DiCaprio', 'American', 1974),
-                                                      ('Matt Damon', 'American', 1970),
-                                                      ('Cillian Murphy', 'Irish', 1976),
-                                                      ('Tom Hanks', 'American', 1956),
-                                                      ('Sigourney Weaver', 'American', 1949),
-                                                      ('Brad Pitt', 'American', 1963),
-                                                      ('Morgan Freeman', 'American', 1937),
-                                                      ('Jodie Foster', 'American', 1962),
-                                                      ('Timothée Chalamet', 'American', 1995),
-                                                      ('Zendaya', 'American', 1996),
-                                                      ('Edward Norton', 'American', 1969),
-                                                      ('Kate Winslet', 'British', 1975),
-                                                      ('Christian Bale', 'British', 1974),
-                                                      ('Heath Ledger', 'Australian', 1979),
-                                                      ('Matthew McConaughey', 'American', 1969);
+INSERT INTO Customers (CompanyName, ContactName, Email, ContractTier, ContractValue) VALUES
+('Apex Financial',       'Richard Lawson', 'r.lawson@apexfinancial.com',       'Enterprise', 120000.00),
+('BlueSky Logistics',    'Karen Bright',   'k.bright@blueskylogistics.com',    'Premium',     45000.00),
+('Cornerstone Legal',    'David Park',     'd.park@cornerstonelegal.com',      'Enterprise',  95000.00),
+('Delta Manufacturing',  'Susan Holt',     's.holt@deltamfg.com',              'Standard',    12000.00),
+('Echo Retail Group',    'Mike Daniels',   'm.daniels@echoretail.com',         'Premium',     38000.00),
+('Frontier Healthcare',  'Amanda Ross',    'a.ross@frontierhealthcare.com',    'Enterprise', 150000.00),
+('Granite Construction', 'Paul Yates',     'p.yates@graniteconstruction.com',  'Standard',     8000.00),
+('Horizon Media',        'Tina Wallis',    't.wallis@horizonmedia.com',        'Premium',     52000.00),
+('Ironclad Security',    'Chris Doyle',    'c.doyle@ironcladsecurity.com',     'Standard',    15000.00),
+('Jade Technology',      'Mei Lin',        'm.lin@jadetechnology.com',         'Enterprise', 200000.00);
 
--- Movies
-INSERT INTO Movies (Title, Year, Rating, RuntimeMinutes, Plot) VALUES
-                                                                   ('Inception', 2010, 8.8, 148, 'A thief who steals corporate secrets through dream-sharing technology is given the task of planting an idea into the mind of a CEO.'),
-                                                                   ('Interstellar', 2014, 8.6, 169, 'A team of explorers travel through a wormhole in space in an attempt to ensure humanitys survival on a new planet.'),
-                                                                   ('Oppenheimer', 2023, 8.9, 180, 'The story of American scientist J. Robert Oppenheimer and his role in the development of the atomic bomb during World War II.'),
-                                                                   ('The Dark Knight', 2008, 9.0, 152, 'Batman faces the Joker, a criminal mastermind who seeks to create chaos in Gotham City.'),
-                                                                   ('Schindlers List', 1993, 9.0, 195, 'In German-occupied Poland during World War II, Oskar Schindler gradually becomes concerned for his Jewish workforce.'),
-                                                                   ('Saving Private Ryan', 1998, 8.6, 169, 'Following the Normandy landings, a group of US soldiers go behind enemy lines to retrieve a paratrooper whose brothers have been killed in action.'),
-                                                                   ('Alien', 1979, 8.4, 117, 'The crew of a commercial spacecraft encounter a deadly extraterrestrial creature after investigating a mysterious transmission.'),
-                                                                   ('Gladiator', 2000, 8.5, 155, 'A former Roman general sets out to exact vengeance against the corrupt emperor who murdered his family.'),
-                                                                   ('Titanic', 1997, 7.9, 194, 'A seventeen-year-old aristocrat falls in love with a kind but poor artist aboard the luxurious, ill-fated R.M.S. Titanic.'),
-                                                                   ('The Departed', 2006, 8.5, 151, 'An undercover cop and a mole in the police attempt to identify each other while both report to their respective bosses.'),
-                                                                   ('Pulp Fiction', 1994, 8.9, 154, 'The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.'),
-                                                                   ('Se7en', 1995, 8.6, 127, 'Two detectives hunt a serial killer who uses the seven deadly sins as his motives.'),
-                                                                   ('The Silence of the Lambs', 1991, 8.6, 118, 'A young FBI cadet seeks the help of an imprisoned cannibal killer to catch another serial killer.'),
-                                                                   ('Dune', 2021, 8.0, 155, 'A noble family becomes embroiled in a war for control over the galaxy most valuable asset while its heir becomes troubled by visions of a dark future.'),
-                                                                   ('Dune Part Two', 2024, 8.5, 166, 'Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.');
+INSERT INTO Tickets (CustomerId, AssignedEmployeeId, Title, Status, Priority, Category, CreatedDate, ResolvedDate) VALUES
+(1,  2,  'Unable to access trading platform after network change',       'Resolved',   'Critical', 'Network',  '2026-01-05 08:23:00', '2026-01-05 11:45:00'),
+(1,  11, 'Suspected phishing emails targeting finance team',             'Closed',     'High',     'Security', '2026-01-12 09:10:00', '2026-01-13 14:30:00'),
+(1,  3,  'Laptops freezing during end of month reporting',               'Resolved',   'High',     'Hardware', '2026-01-28 10:00:00', '2026-01-29 16:00:00'),
+(1,  4,  'New analyst cannot log into reporting software',               'Closed',     'Medium',   'Access',   '2026-02-03 08:45:00', '2026-02-03 10:15:00'),
+(1,  7,  'Intermittent VPN dropouts for remote traders',                 'Open',       'Critical', 'Network',  '2026-04-10 07:55:00', NULL),
 
--- MovieDirectors
-INSERT INTO MovieDirectors (MovieId, DirectorId) VALUES
-                                                     (1, 1), (2, 1), (3, 1), (4, 1),
-                                                     (5, 2), (6, 2),
-                                                     (7, 4), (8, 4),
-                                                     (9, 5),
-                                                     (10, 3),
-                                                     (11, 6),
-                                                     (12, 7), (13, 7),
-                                                     (14, 8), (15, 8);
+(2,  8,  'Warehouse barcode scanners losing network connectivity',       'Resolved',   'High',     'Network',  '2026-01-08 11:30:00', '2026-01-09 09:00:00'),
+(2,  3,  'Printer in dispatch bay not responding',                       'Closed',     'Low',      'Hardware', '2026-01-20 13:00:00', '2026-01-20 15:30:00'),
+(2,  12, 'Unusual login attempts detected on logistics portal',          'Resolved',   'High',     'Security', '2026-02-14 08:00:00', '2026-02-14 17:00:00'),
+(2,  5,  'Fleet management software crashes on startup',                 'InProgress', 'Medium',   'Software', '2026-04-01 09:30:00', NULL),
+(2,  4,  'New driver onboarding accounts not created',                   'Open',       'Medium',   'Access',   '2026-04-18 10:00:00', NULL),
 
--- MovieActors
-INSERT INTO MovieActors (MovieId, ActorId) VALUES
-                                               (1, 1), (1, 13),
-                                               (2, 15), (2, 13),
-                                               (3, 3),
-                                               (4, 13), (4, 14),
-                                               (5, 6),
-                                               (6, 2), (6, 4),
-                                               (7, 5),
-                                               (8, 6),
-                                               (9, 1), (9, 12),
-                                               (10, 1), (10, 6), (10, 7),
-                                               (11, 6),
-                                               (12, 6), (12, 7),
-                                               (13, 8),
-                                               (14, 9), (14, 10),
-                                               (15, 9), (15, 10);
+(3,  11, 'Ransomware alert triggered on partners shared drive',          'Resolved',   'Critical', 'Security', '2026-01-15 06:45:00', '2026-01-15 14:00:00'),
+(3,  2,  'Document management system timing out on large files',         'Closed',     'High',     'Software', '2026-01-22 09:00:00', '2026-01-24 11:00:00'),
+(3,  7,  'Video conferencing dropping during client calls',              'Resolved',   'Medium',   'Network',  '2026-02-05 10:30:00', '2026-02-06 09:00:00'),
+(3,  3,  'Senior partner laptop will not boot',                          'Closed',     'High',     'Hardware', '2026-02-19 08:00:00', '2026-02-19 12:30:00'),
+(3,  13, 'Two-factor authentication not working for remote staff',       'InProgress', 'High',     'Security', '2026-04-07 09:15:00', NULL),
 
--- MovieGenres
-INSERT INTO MovieGenres (MovieId, GenreId) VALUES
-                                               (1, 3), (1, 4), (1, 1),
-                                               (2, 3), (2, 4), (2, 7),
-                                               (3, 2), (3, 4),
-                                               (4, 1), (4, 6), (4, 4),
-                                               (5, 2),
-                                               (6, 2), (6, 1),
-                                               (7, 3), (7, 9),
-                                               (8, 1), (8, 2), (8, 7),
-                                               (9, 2), (9, 10),
-                                               (10, 6), (10, 4), (10, 2),
-                                               (11, 6), (11, 4),
-                                               (12, 6), (12, 4), (12, 9),
-                                               (13, 9), (13, 4), (13, 6),
-                                               (14, 3), (14, 7), (14, 2),
-                                               (15, 3), (15, 7), (15, 2);
+(4,  8,  'Factory floor devices cannot reach ERP system',               'Resolved',   'Critical', 'Network',  '2026-01-10 06:00:00', '2026-01-10 10:30:00'),
+(4,  5,  'ERP reporting module showing incorrect stock figures',         'Closed',     'Medium',   'Software', '2026-02-01 09:00:00', '2026-02-03 14:00:00'),
+(4,  4,  'New production line staff need system accounts',               'Closed',     'Low',      'Access',   '2026-02-10 10:00:00', '2026-02-10 11:30:00'),
+(4,  9,  'Site to site VPN between two factories unstable',              'InProgress', 'High',     'Network',  '2026-03-25 08:00:00', NULL),
+(4,  3,  'Workstation in quality control overheating and shutting down', 'Open',       'Medium',   'Hardware', '2026-04-20 11:00:00', NULL),
 
--- Reviews
-INSERT INTO Reviews (MovieId, ReviewText, Score) VALUES
-                                                     (1, 'A mind-bending masterpiece that challenges the boundaries of reality. Nolan at his absolute best.', 9.5),
-                                                     (1, 'Visually stunning with a complex narrative that rewards repeat viewings. A modern classic.', 8.5),
-                                                     (2, 'An emotional and visually spectacular journey through space. Hans Zimmers score elevates every scene.', 9.0),
-                                                     (2, 'Ambitious and thought-provoking but slightly overlong. Still one of the best sci-fi films in years.', 7.5),
-                                                     (3, 'A towering achievement in cinema. Cillian Murphy delivers a career-defining performance.', 9.5),
-                                                     (3, 'Dense and demanding but ultimately rewarding. A film that stays with you long after the credits roll.', 8.5),
-                                                     (4, 'Heath Ledgers Joker is one of the greatest villain performances in cinema history. A near perfect film.', 9.8),
-                                                     (4, 'Redefines what a superhero film can be. Dark, complex and utterly gripping from start to finish.', 9.0),
-                                                     (5, 'One of the most powerful films ever made. Spielberg at his most restrained and effective.', 9.5),
-                                                     (6, 'The opening sequence alone is worth the price of admission. A brutal and moving war epic.', 8.5),
-                                                     (7, 'Still terrifying after all these years. Ridley Scott creates unbearable tension in every scene.', 8.8),
-                                                     (8, 'A spectacular epic with a career-best performance from Russell Crowe.', 8.0),
-                                                     (9, 'A timeless romance wrapped around a spectacular disaster. DiCaprio and Winslet are magnetic together.', 8.0),
-                                                     (10, 'Scorseses best film in decades. An intricate crime thriller with outstanding performances throughout.', 9.0),
-                                                     (11, 'Revolutionary and endlessly quotable. Tarantino rewrote the rules of storytelling with this film.', 9.2),
-                                                     (12, 'Dark, stylish and deeply unsettling. Fincher crafts a thriller that gets under your skin.', 9.0),
-                                                     (13, 'One of the finest thrillers ever made. Jodie Foster and Anthony Hopkins are unforgettable.', 9.3),
-                                                     (14, 'A stunning visual achievement with a rich and complex story. Villeneuve proves himself a master.', 8.5),
-                                                     (15, 'An even better sequel. Zendaya and Chalamet have incredible chemistry. Epic cinema at its finest.', 9.0);
+(5,  2,  'Point of sale terminals offline across three stores',          'Resolved',   'Critical', 'Network',  '2026-01-06 07:30:00', '2026-01-06 09:45:00'),
+(5,  12, 'Customer data export flagged by security scan',                'Closed',     'High',     'Security', '2026-01-25 09:00:00', '2026-01-27 16:00:00'),
+(5,  5,  'Stock management software not syncing with warehouse',         'Resolved',   'Medium',   'Software', '2026-02-08 10:00:00', '2026-02-09 14:00:00'),
+(5,  4,  'Store manager locked out of back office system',               'Closed',     'Medium',   'Access',   '2026-03-01 08:30:00', '2026-03-01 09:00:00'),
+(5,  9,  'Store network running very slowly during peak hours',          'Open',       'High',     'Network',  '2026-04-15 13:00:00', NULL),
+
+(6,  11, 'Patient records system unreachable from ward terminals',       'Resolved',   'Critical', 'Network',  '2026-01-03 05:30:00', '2026-01-03 07:15:00'),
+(6,  13, 'Possible unauthorised access to patient data portal',          'Resolved',   'Critical', 'Security', '2026-01-18 08:00:00', '2026-01-19 18:00:00'),
+(6,  2,  'Medical imaging software crashing on radiology workstations',  'Closed',     'High',     'Software', '2026-02-02 09:00:00', '2026-02-04 11:00:00'),
+(6,  3,  'Several ward tablets have cracked screens and dead batteries', 'InProgress', 'Low',      'Hardware', '2026-03-10 10:00:00', NULL),
+(6,  4,  'Locum doctors unable to access prescribing system',            'Open',       'High',     'Access',   '2026-04-22 08:00:00', NULL),
+
+(7,  8,  'Site office has no internet since router was replaced',        'Resolved',   'High',     'Network',  '2026-01-14 09:00:00', '2026-01-14 14:00:00'),
+(7,  5,  'Project management software licence expired',                  'Closed',     'Medium',   'Software', '2026-02-06 10:00:00', '2026-02-06 11:00:00'),
+(7,  3,  'Rugged laptop used on site has failed display',                'Closed',     'Medium',   'Hardware', '2026-02-20 08:30:00', '2026-02-21 12:00:00'),
+(7,  15, 'Site foreman needs access to supplier portal',                 'Closed',     'Low',      'Access',   '2026-03-05 09:00:00', '2026-03-05 10:00:00'),
+(7,  9,  'CCTV system on construction site cannot connect to HQ',        'Open',       'Medium',   'Network',  '2026-04-25 11:00:00', NULL),
+
+(8,  7,  'Live broadcast network experiencing packet loss',              'Resolved',   'Critical', 'Network',  '2026-01-09 04:00:00', '2026-01-09 06:30:00'),
+(8,  12, 'Unauthorised device detected on production network',           'Resolved',   'High',     'Security', '2026-01-30 09:00:00', '2026-01-30 17:00:00'),
+(8,  5,  'Video editing software not recognising GPU after update',      'Closed',     'High',     'Software', '2026-02-12 10:00:00', '2026-02-13 15:00:00'),
+(8,  3,  'Editing suite workstation making loud grinding noise',         'Resolved',   'Medium',   'Hardware', '2026-02-25 09:00:00', '2026-02-26 11:00:00'),
+(8,  15, 'Freelance editors need temporary VPN access',                  'InProgress', 'Medium',   'Access',   '2026-04-05 10:00:00', NULL),
+
+(9,  11, 'Firewall rules blocking legitimate client traffic',            'Resolved',   'High',     'Security', '2026-01-11 08:00:00', '2026-01-11 13:00:00'),
+(9,  7,  'Network monitoring tool showing false positive alerts',        'Closed',     'Medium',   'Network',  '2026-01-26 09:00:00', '2026-01-28 11:00:00'),
+(9,  5,  'Vulnerability scanner licence needs renewal',                  'Closed',     'Low',      'Software', '2026-02-15 10:00:00', '2026-02-15 11:30:00'),
+(9,  4,  'New security consultant needs admin access provisioned',       'Closed',     'Medium',   'Access',   '2026-03-08 09:00:00', '2026-03-08 10:30:00'),
+(9,  13, 'Suspected brute force attack on client VPN gateway',           'Open',       'Critical', 'Security', '2026-04-28 02:00:00', NULL),
+
+(10, 2,  'Development environment network completely unreachable',       'Resolved',   'Critical', 'Network',  '2026-01-07 07:00:00', '2026-01-07 09:30:00'),
+(10, 13, 'Source code repository access logs show anomalous activity',   'Resolved',   'High',     'Security', '2026-01-21 09:00:00', '2026-01-22 16:00:00'),
+(10, 5,  'CI/CD pipeline failing after server OS update',                'Closed',     'High',     'Software', '2026-02-17 10:00:00', '2026-02-18 14:00:00'),
+(10, 3,  'Developer workstations need RAM upgrade for new tooling',      'InProgress', 'Medium',   'Hardware', '2026-03-20 09:00:00', NULL),
+(10, 15, 'Contractors need access to staging environment',               'Open',       'Medium',   'Access',   '2026-04-30 10:00:00', NULL);

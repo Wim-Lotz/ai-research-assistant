@@ -1,58 +1,43 @@
-CREATE DATABASE ResearchAssistant;
+CREATE DATABASE NexusSupport;
 GO
 
-USE ResearchAssistant;
+USE NexusSupport;
 GO
 
-CREATE TABLE Directors (
-                           Id INT PRIMARY KEY IDENTITY(1,1),
-                           Name NVARCHAR(100) NOT NULL,
-                           Nationality NVARCHAR(50),
-                           BirthYear INT
+CREATE TABLE Departments (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL
 );
 
-CREATE TABLE Actors (
-                        Id INT PRIMARY KEY IDENTITY(1,1),
-                        Name NVARCHAR(100) NOT NULL,
-                        Nationality NVARCHAR(50),
-                        BirthYear INT
+CREATE TABLE Employees (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    FirstName NVARCHAR(50) NOT NULL,
+    LastName NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,
+    Role NVARCHAR(100) NOT NULL,
+    DepartmentId INT FOREIGN KEY REFERENCES Departments(Id),
+    StartDate DATE NOT NULL,
+    IsActive BIT NOT NULL DEFAULT 1
 );
 
-CREATE TABLE Genres (
-                        Id INT PRIMARY KEY IDENTITY(1,1),
-                        Name NVARCHAR(50) NOT NULL
+CREATE TABLE Customers (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    CompanyName NVARCHAR(100) NOT NULL,
+    ContactName NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(100) NOT NULL,
+    ContractTier NVARCHAR(20) NOT NULL,
+    ContractValue DECIMAL(10,2) NOT NULL,
+    IsActive BIT NOT NULL DEFAULT 1
 );
 
-CREATE TABLE Movies (
-                        Id INT PRIMARY KEY IDENTITY(1,1),
-                        Title NVARCHAR(200) NOT NULL,
-                        Year INT NOT NULL,
-                        Rating DECIMAL(3,1),
-                        RuntimeMinutes INT,
-                        Plot NVARCHAR(MAX)
-);
-
-CREATE TABLE MovieDirectors (
-                                MovieId INT FOREIGN KEY REFERENCES Movies(Id),
-                                DirectorId INT FOREIGN KEY REFERENCES Directors(Id),
-                                PRIMARY KEY (MovieId, DirectorId)
-);
-
-CREATE TABLE MovieActors (
-                             MovieId INT FOREIGN KEY REFERENCES Movies(Id),
-                             ActorId INT FOREIGN KEY REFERENCES Actors(Id),
-                             PRIMARY KEY (MovieId, ActorId)
-);
-
-CREATE TABLE MovieGenres (
-                             MovieId INT FOREIGN KEY REFERENCES Movies(Id),
-                             GenreId INT FOREIGN KEY REFERENCES Genres(Id),
-                             PRIMARY KEY (MovieId, GenreId)
-);
-
-CREATE TABLE Reviews (
-                         Id INT PRIMARY KEY IDENTITY(1,1),
-                         MovieId INT FOREIGN KEY REFERENCES Movies(Id),
-                         ReviewText NVARCHAR(MAX) NOT NULL,
-                         Score DECIMAL(3,1)
+CREATE TABLE Tickets (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    CustomerId INT FOREIGN KEY REFERENCES Customers(Id),
+    AssignedEmployeeId INT FOREIGN KEY REFERENCES Employees(Id),
+    Title NVARCHAR(200) NOT NULL,
+    Status NVARCHAR(20) NOT NULL,
+    Priority NVARCHAR(20) NOT NULL,
+    Category NVARCHAR(50) NOT NULL,
+    CreatedDate DATETIME NOT NULL,
+    ResolvedDate DATETIME NULL
 );

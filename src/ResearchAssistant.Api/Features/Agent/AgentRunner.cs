@@ -24,15 +24,13 @@ public class AgentRunner
         {
             var response = await _languageModelService.GenerateAsync(conversationHistory, ct);
 
-            if (response.Contains("ANSWER:"))
-            {
-                return response.Split("ANSWER:")[1].Trim();
-            }
-
-            if (response.Contains("TOOL:") && response.Contains("INPUT:"))
+if (response.Contains("TOOL:") && response.Contains("INPUT:"))
             {
                 var toolName = response.Split("TOOL:")[1].Split("\n")[0].Trim();
                 var toolInput = response.Split("INPUT:")[1].Trim();
+
+                if (toolInput.Contains("ANSWER:"))
+                    toolInput = toolInput.Split("ANSWER:")[0].Trim();
 
                 var tool = _tools.FirstOrDefault(t => t.Name == toolName);
 
@@ -47,6 +45,11 @@ public class AgentRunner
                 }
 
                 continue;
+            }
+
+            if (response.Contains("ANSWER:"))
+            {
+                return response.Split("ANSWER:")[1].Trim();
             }
 
             // LLM didn't follow format - nudge it

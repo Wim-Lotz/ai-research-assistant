@@ -1,4 +1,6 @@
 ﻿using FastEndpoints;
+using ModelContextProtocol.Client;
+using ModelContextProtocol.Protocol;
 using ResearchAssistant.Api.Infrastructure;
 
 namespace ResearchAssistant.Api.Features.Agent;
@@ -18,15 +20,18 @@ public class AgentEndpoint : Endpoint<AgentRequest, AgentResponse>
     private readonly ILanguageModelService _languageModelService;
     private readonly IEmbeddingService _embeddingService;
     private readonly IDocumentService _documentService;
+    private readonly McpClient _mcpClient;
 
     public AgentEndpoint(
         ILanguageModelService languageModelService,
         IEmbeddingService embeddingService,
-        IDocumentService documentService)
+        IDocumentService documentService,
+        McpClient mcpClient)
     {
         _languageModelService = languageModelService;
         _embeddingService = embeddingService;
         _documentService = documentService;
+        _mcpClient = mcpClient;
     }
 
     public override void Configure()
@@ -51,6 +56,28 @@ public class AgentEndpoint : Endpoint<AgentRequest, AgentResponse>
                     return resultList.Count == 0
                         ? "No relevant documents found."
                         : string.Join("\n\n", resultList);
+                }
+            },
+            new()
+            {
+                Name = "query_helpdesk",
+                Description = "Queries the helpdesk database for structured data about tickets, customers, employees and departments. Use this for questions about specific ticket statuses, priorities, customers or staff.",
+                Execute = async input =>
+                {
+                    var result = await _mcpClient.CallToolAsync(
+                        "read_records",
+                        new Dictionary<string, object?>
+                        {
+                            ["entity"] = "Ticket",
+                            ["filter"] = input
+                        },
+                        cancellationToken: ct);
+
+                    var text = result.Content
+                        .OfType<TextContentBlock>()
+                        .FirstOrDefault()?.Text;
+
+                    return text ?? "No results found.";
                 }
             },
             new()

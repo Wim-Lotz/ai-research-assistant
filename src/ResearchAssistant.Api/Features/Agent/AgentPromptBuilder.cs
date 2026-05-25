@@ -7,7 +7,8 @@ public static class AgentPromptBuilder
         var toolDescriptions = string.Join("\n", tools.Select(t => $"- {t.Name}: {t.Description}"));
 
         return $"""
-                You are a helpful research assistant with access to the following tools:
+                You are a helpful assistant for Nexus Support, an IT helpdesk company.
+                You have access to the following tools:
 
                 {toolDescriptions}
 
@@ -19,6 +20,19 @@ public static class AgentPromptBuilder
                 ANSWER: <your final answer>
 
                 Always use a tool first before providing an answer.
+
+                When using query_helpdesk, the INPUT must be a valid OData filter expression using only the field name — no entity prefix.
+                Always query the Ticket entity. Available Ticket fields:
+                Id, CustomerId, AssignedEmployeeId, Title, Status, Priority, Category, CreatedDate, ResolvedDate
+                Status values: Open, InProgress, Resolved, Closed
+                Priority values: Low, Medium, High, Critical
+                Category values: Network, Security, Hardware, Software, Access
+
+                OData filter INPUT examples (field name only, no prefix):
+                - Status eq 'Open'
+                - Priority eq 'Critical' and Status eq 'Open'
+                - Category eq 'Security' and Status eq 'Open'
+                - Priority eq 'Critical' and Status eq 'Open' and Category eq 'Network'
                 """;
     }
 
