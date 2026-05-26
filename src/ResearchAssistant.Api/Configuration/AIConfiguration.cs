@@ -31,7 +31,12 @@ public static class AIConfiguration
         var modelName = builder.Configuration["Ollama:Model"]
                         ?? "phi3:mini";
 
-        builder.Services.AddSingleton(_ => new OllamaApiClient(ollamaUrl, modelName));
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(ollamaUrl),
+            Timeout = TimeSpan.FromMinutes(10)
+        };
+        builder.Services.AddSingleton(_ => new OllamaApiClient(httpClient, modelName));
         builder.Services.AddScoped<ILanguageModelService, OllamaLanguageModelService>();
     }
 

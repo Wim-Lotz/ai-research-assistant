@@ -24,4 +24,10 @@
     <ProjectReference Include="..\ResearchAssistant.Shared\ResearchAssistant.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Data\helpdesk-documents.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

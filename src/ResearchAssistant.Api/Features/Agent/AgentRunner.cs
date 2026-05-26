@@ -24,7 +24,7 @@ public class AgentRunner
         {
             var response = await _languageModelService.GenerateAsync(conversationHistory, ct);
 
-if (response.Contains("TOOL:") && response.Contains("INPUT:"))
+            if (response.Contains("TOOL:") && response.Contains("INPUT:"))
             {
                 var toolName = response.Split("TOOL:")[1].Split("\n")[0].Trim();
                 var toolInput = response.Split("INPUT:")[1].Trim();
@@ -37,11 +37,13 @@ if (response.Contains("TOOL:") && response.Contains("INPUT:"))
                 if (tool is not null)
                 {
                     var toolResult = await tool.Execute(toolInput);
-                    conversationHistory += $"\n\n{response}\n\n{AgentPromptBuilder.BuildToolResultPrompt(toolName, toolResult)}";
+                    conversationHistory +=
+                        $"\n\n{response}\n\n{AgentPromptBuilder.BuildToolResultPrompt(toolName, toolResult)}";
                 }
                 else
                 {
-                    conversationHistory += $"\n\nTool '{toolName}' not found. Available tools: {string.Join(", ", _tools.Select(t => t.Name))}";
+                    conversationHistory +=
+                        $"\n\nTool '{toolName}' not found. Available tools: {string.Join(", ", _tools.Select(t => t.Name))}";
                 }
 
                 continue;

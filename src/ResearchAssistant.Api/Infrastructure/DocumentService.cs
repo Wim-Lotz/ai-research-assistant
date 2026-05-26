@@ -53,6 +53,21 @@ public class DocumentService : IDocumentService
         await _client.UpsertAsync(_collectionName, points, cancellationToken: ct);
     }
 
+    public async Task StoreAsync(string documentId, string text, float[] embedding, Dictionary<string, string> metadata, CancellationToken ct = default)
+    {
+        var point = new PointStruct
+        {
+            Id = new PointId { Uuid = documentId },
+            Vectors = embedding,
+            Payload = { ["text"] = text }
+        };
+
+        foreach (var (key, value) in metadata)
+            point.Payload[key] = value;
+
+        await _client.UpsertAsync(_collectionName, [point], cancellationToken: ct);
+    }
+
     public async Task<IEnumerable<string>> SearchAsync(float[] queryEmbedding, int limit = 5, CancellationToken ct = default)
     {
         var results = await _client.SearchAsync(

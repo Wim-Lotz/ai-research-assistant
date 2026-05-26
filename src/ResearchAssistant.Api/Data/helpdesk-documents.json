@@ -1,0 +1,130 @@
+{
+  "documents": [
+    {
+      "id": "kb-001",
+      "type": "kb_article",
+      "category": "Network",
+      "title": "Troubleshooting VPN Connectivity Issues",
+      "content": "VPN clients on Windows 10 and 11 commonly disconnect due to MTU mismatch, driver issues, or network interface conflicts. Start by verifying the VPN client version is current. Check Windows Event Viewer under Applications and Services Logs > Cisco AnyConnect for error codes. If seeing error 442 (failed to enable virtual adapter), run the VPN client as administrator.\n\nFor intermittent dropouts, set the MTU on the VPN adapter to 1400 using: netsh interface ipv4 set subinterface \"Cisco AnyConnect\" mtu=1400. If dropouts occur on Wi-Fi only, disable power management on the wireless adapter in Device Manager.\n\nAs a last resort, uninstall and reinstall the VPN client, then reboot before reconnecting. Document the VPN client version and Windows build number in the ticket before escalating to the network team."
+    },
+    {
+      "id": "kb-002",
+      "type": "kb_article",
+      "category": "Security",
+      "title": "Responding to a Suspected Phishing Attack",
+      "content": "When a user reports a suspected phishing email, act immediately. Do not click any links or download attachments in the email. Forward the email as an attachment to security@nexussupport.com for analysis. In Outlook, right-click the email and select Mark as Phishing to report it to Microsoft.\n\nIf the user has already clicked a link or entered credentials, escalate immediately: reset the user's password, revoke all active sessions in Azure AD, and notify the security team. Check the user's sent items and inbox rules for signs of account compromise such as forwarding rules to external addresses.\n\nDocument the sender domain, subject line, and any URLs for the threat intelligence log. Run a full antivirus scan on the user's machine and monitor for unusual outbound connections over the following 48 hours."
+    },
+    {
+      "id": "kb-003",
+      "type": "kb_article",
+      "category": "Hardware",
+      "title": "Diagnosing and Replacing a Failing Hard Drive",
+      "content": "Signs of hard drive failure include clicking or grinding sounds, frequent blue screens with IRQL_NOT_LESS_OR_EQUAL or CRITICAL_PROCESS_DIED stop codes, files becoming corrupted or disappearing, and the drive not appearing in BIOS. Run CrystalDiskInfo to check SMART data — a Reallocated Sectors Count above 5 or a Pending Sector Count above 0 indicates imminent failure.\n\nBack up data immediately before any intervention. For SSDs, check for firmware updates before replacing. To replace: image the failing drive to a new one using Clonezilla or Macrium Reflect. For enterprise laptops under warranty, raise a hardware replacement ticket and swap the drive under the manufacturer support agreement.\n\nAfter replacement, verify the new drive passes a full SMART test and the OS boots cleanly. Run a memory diagnostic as well — memory faults can cause symptoms that mimic drive failure."
+    },
+    {
+      "id": "kb-004",
+      "type": "kb_article",
+      "category": "Software",
+      "title": "Resolving Microsoft 365 Activation Errors",
+      "content": "Microsoft 365 activation errors typically fall into three categories: licensing, network, or token issues. Error 0x8004FC12 means the activation server could not be reached — check proxy settings and ensure login.microsoftonline.com and activation.microsoft.com are not blocked by the firewall or web filter.\n\nError 0xC004E016 indicates no valid licence is assigned: check the user's licence in the Microsoft 365 admin centre under Users > Active Users. For token corruption (Error 0x8007007B), run: cscript ospp.vbs /dstatus in the Office installation directory to list installed licences, then cscript ospp.vbs /unpkey to remove corrupted keys.\n\nIn persistent cases, use the Microsoft Support and Recovery Assistant (SaRA) to diagnose and repair the activation state. Ensure the user is signed into Office with their corporate email, not a personal Microsoft account, by checking File > Account in any Office application."
+    },
+    {
+      "id": "kb-005",
+      "type": "kb_article",
+      "category": "Access",
+      "title": "Active Directory Password Reset Procedures",
+      "content": "Active Directory password resets require helpdesk agents to verify the caller's identity before proceeding. Verification steps: confirm the user's full name, employee ID, department, and the email address on file. Never reset a password without completing all four verification steps — this is a security control against social engineering.\n\nTo reset in Active Directory Users and Computers: locate the user account, right-click and select Reset Password, set a temporary password meeting complexity requirements (minimum 12 characters, uppercase, lowercase, number, and symbol), check 'User must change password at next logon', and unlock the account if it shows as locked.\n\nInform the user of the temporary password verbally or via a secure channel — never send it via email or Teams. After the reset, confirm the user can log in before closing the ticket. Document the verification steps taken in the ticket notes for audit purposes."
+    },
+    {
+      "id": "kb-006",
+      "type": "kb_article",
+      "category": "Network",
+      "title": "DNS Resolution Failures: Causes and Fixes",
+      "content": "DNS resolution failures cause websites and internal services to become unreachable even when the network connection is active. Symptoms include DNS_PROBE_FINISHED_NXDOMAIN errors in browsers and ping failures to hostnames that succeed when pinging IP addresses directly. First, flush the local DNS cache: ipconfig /flushdns.\n\nCheck the configured DNS servers: ipconfig /all. Corporate machines should point to the domain controller, not the router or public resolvers such as 8.8.8.8 or 1.1.1.1 — public DNS servers appearing in ipconfig indicates a DHCP misconfiguration. Test resolution against a known DNS server: nslookup nexussupport.local 10.0.0.1.\n\nIf internal names resolve but external names do not, check for missing or misconfigured conditional forwarders on the DNS server. If DNS is responding slowly, check for DNS server overload using Performance Monitor on the domain controller. Persistent failures may indicate a DHCP scope exhaustion preventing clients from obtaining valid DNS server addresses."
+    },
+    {
+      "id": "rn-001",
+      "type": "resolution_note",
+      "category": "Network",
+      "title": "VPN dropout resolved by client firmware update",
+      "content": "Ticket resolved by updating Cisco AnyConnect client from version 4.10.01075 to 4.10.06079. The older version had a known compatibility issue with the Windows 11 22H2 network stack causing VPN tunnels to drop after approximately 20 minutes of inactivity.\n\nAfter updating the client and applying the MTU fix (mtu=1400 on the VPN adapter), the user reported stable connectivity over a 48-hour test period. No further action required.\n\nRecommended adding the AnyConnect version check to the new employee onboarding checklist so future starters receive the current version from day one."
+    },
+    {
+      "id": "rn-002",
+      "type": "resolution_note",
+      "category": "Security",
+      "title": "Ransomware contained and files restored from backup",
+      "content": "Isolated the affected workstation immediately upon detection. Confirmed ransomware variant as LockBit 3.0 via the ransom note filename pattern. Workstation was disconnected from the network switch port using network admin tools without waiting for physical access.\n\nEngaged the security incident response procedure. Restored the user's files from the previous night's Veeam backup (23:00 snapshot). Total data loss: approximately 4 hours of work. Reformatted and reimaged the workstation from the golden image. Re-enrolled in Intune and restored user profile from backup.\n\nRoot cause: user executed a malicious Excel macro received via email. Recommended mandatory security awareness training for the department and reviewed macro execution policy — now set to disable all macros without notification via Group Policy."
+    },
+    {
+      "id": "rn-003",
+      "type": "resolution_note",
+      "category": "Hardware",
+      "title": "Cracked laptop screen replaced same day",
+      "content": "User reported cracked laptop screen following an accidental drop. Dell Latitude 5540, serial LT20489. Ordered replacement screen (Dell part P/N 0K9D8K) from the hardware stockroom.\n\nReplaced screen in the workshop — 45-minute repair. Tested display at all resolutions and brightness levels with no dead pixels or backlight bleed observed. No other damage to the chassis or internals was found.\n\nReturned to user same day. Warranty claim submitted — screen damage is covered under the Dell ProSupport Plus accidental damage policy. No cost charged to the department."
+    },
+    {
+      "id": "rn-004",
+      "type": "resolution_note",
+      "category": "Software",
+      "title": "Excel crash caused by outdated Bloomberg add-in",
+      "content": "Excel was crashing on launch for one specific user on a shared machine. Other users on the same machine were unaffected. Identified the issue as a corrupt Excel add-in — a third-party Bloomberg Terminal add-in that had not been updated in 18 months.\n\nDisabled the add-in via Excel Options > Add-ins > COM Add-ins. Excel launched successfully. Contacted Bloomberg support and obtained the updated add-in installer (version 3.5.1). Reinstalled and re-enabled. Tested with the user — no further crashes observed.\n\nRoot cause: the Bloomberg add-in auto-update had been blocked by a Group Policy. Raised with the GPO team to whitelist Bloomberg Terminal updates. Noted that the existing Excel repair tool (Office > Repair) had no effect on COM add-in corruption — manual removal was the only resolution."
+    },
+    {
+      "id": "rn-005",
+      "type": "resolution_note",
+      "category": "Access",
+      "title": "MFA lockout resolved after phone replacement",
+      "content": "User was locked out of Microsoft Authenticator after getting a new phone and not transferring the app before the old phone was wiped. The old device was no longer accessible so the standard app transfer process was not possible.\n\nReset the user's MFA methods in Azure AD: Azure Active Directory > Users > [user] > Authentication methods > Delete all existing MFA methods. The user was then able to re-enrol by signing into myaccount.microsoft.com and setting up the Authenticator app on the new device.\n\nReminded the user that MFA backup codes are available in the security info portal and should be saved before changing devices. Suggested updating the employee onboarding and offboarding guide to include MFA transfer steps as a required action before handing in or wiping any device."
+    },
+    {
+      "id": "rn-006",
+      "type": "resolution_note",
+      "category": "Network",
+      "title": "Slow internet traced to misconfigured QoS policy",
+      "content": "User's internet speed was measuring 2 Mbps on a 100 Mbps line. Confirmed other users on the same switch were unaffected. Ran a packet capture using Wireshark and identified excessive TCP retransmissions on the user's switch port.\n\nChecked the QoS policy applied to the VLAN and found the user's machine was incorrectly tagged as a VoIP device (DSCP EF, queue 1 with 1% bandwidth allocation), severely limiting throughput. This was caused by a stale MAC address entry in the QoS policy from a previous VoIP handset that had used the same network port.\n\nRemoved the stale MAC entry from the QoS configuration on the switch. Internet speed immediately returned to 98 Mbps. No further action required. Added a step to the network port decommission checklist to clear MAC-based QoS entries when reassigning ports."
+    },
+    {
+      "id": "ir-001",
+      "type": "incident_report",
+      "category": "Security",
+      "title": "Brute force attack on client VPN gateway",
+      "content": "At 14:23, the SIEM triggered a high-severity alert: 847 failed login attempts against the client VPN gateway in 12 minutes from IP range 185.220.x.x, a known Tor exit node range. The attack targeted the usernames 'admin' and 'administrator', neither of which exist in Active Directory, so no accounts were compromised.\n\nThe VPN gateway was configured to lock out after 5 failed attempts per account, which prevented credential stuffing from succeeding against valid accounts. Blocked the source IP range at the perimeter firewall. Notified the customer (Meridian Capital) as per the Premium SLA incident notification requirement within 30 minutes.\n\nReviewed VPN gateway logs — no successful authentications from the source IP range at any point. Incident closed with no data breach confirmed. Recommended disabling anonymous username enumeration on the VPN gateway to prevent attackers from distinguishing valid from invalid usernames."
+    },
+    {
+      "id": "ir-002",
+      "type": "incident_report",
+      "category": "Network",
+      "title": "Office-wide outage due to aging switch failure",
+      "content": "At 09:47, the entire Apex Logistics office (12 users) lost network connectivity simultaneously. Initial investigation traced the fault to a failed Cisco Catalyst 2960 switch in the server room — the switch was 11 years old and showing amber port status LEDs with an intermittently dropping uplink.\n\nReplaced with a spare Cisco Catalyst 9200 from the hardware stock. Reconfigured VLANs and port settings from the backed-up switch configuration (last backup: 3 days prior — 3 new ports required manual configuration). Total outage duration: 2 hours 14 minutes.\n\nRoot cause: hardware failure due to age and capacitor degradation. Recommended scheduling replacement of remaining legacy switches in the next quarterly maintenance window. SLA breach noted: the Enterprise SLA requires 2-hour restoration — missed by 14 minutes. Incident report sent to the account manager for SLA credit processing."
+    },
+    {
+      "id": "ir-003",
+      "type": "incident_report",
+      "category": "Hardware",
+      "title": "RAID array degraded by predictive disk failure",
+      "content": "At 03:12, monitoring alerted on a SMART predictive failure event on disk 2 of a RAID-5 array in the Quantum Analytics SQL Server. The disk was showing 847 reallocated sectors and a pending sector count of 23. The RAID controller had moved to degraded mode but the array remained operational.\n\nEngaged the on-call engineer to hot-swap the failing disk (Dell PowerEdge R740, disk bay 2). Replacement disk sourced from the on-site spare parts stock. RAID rebuild completed at 06:41, taking 3 hours 29 minutes. No data loss occurred. SQL Server remained online throughout the incident with no user-facing impact.\n\nPost-incident: updated SMART monitoring thresholds to alert at 10 reallocated sectors (previously set to 100 — too high to provide adequate warning). Added disk health check to monthly maintenance checklist. Ordered two additional spare drives for the site."
+    },
+    {
+      "id": "ir-004",
+      "type": "incident_report",
+      "category": "Software",
+      "title": "CRM unavailable after bad auto-update",
+      "content": "At 10:15, the Salesforce CRM became unresponsive for all 8 users at TechBridge Solutions. Investigation revealed the Salesforce desktop app had auto-updated overnight to version 60.0.1, which introduced a regression in a custom Lightning component used by TechBridge for their client intake workflow.\n\nSalesforce confirmed the regression at 11:30 and issued a hotfix (60.0.1.1) at 14:00. As a temporary fix, rolled back the affected machines to version 59.8.2 using the MSI installer at 12:00, restoring service. Total impact: 1 hour 45 minutes of CRM unavailability affecting the sales and support teams.\n\nRecommended enabling Salesforce app auto-update only in the TechBridge test environment before rolling to production machines. Raised a change request to implement this via Intune app deployment policy."
+    },
+    {
+      "id": "ir-005",
+      "type": "incident_report",
+      "category": "Access",
+      "title": "Mass account lockout from GPO misconfiguration",
+      "content": "At 08:02, the helpdesk received 47 calls within 15 minutes from users unable to log in across multiple customer sites. A common cause was quickly identified: a new Group Policy Object had been deployed at 07:55 changing the minimum password length from 8 to 14 characters.\n\nThe GPO rollout forced an immediate password change prompt at next login. However, a misconfiguration in the GPO caused the system to immediately invalidate existing Kerberos tokens, locking users out before they could reach the password change screen. Reverted the GPO at 08:24. Reset all locked accounts in bulk using a PowerShell script (Unlock-ADAccount). Service restored to all affected users by 08:45. Total duration: 43 minutes.\n\nGPO will be redeployed in a phased rollout targeting a pilot group during the next maintenance window. Added GPO testing to the change management checklist as a mandatory step before domain-wide deployment."
+    },
+    {
+      "id": "ir-006",
+      "type": "incident_report",
+      "category": "Security",
+      "title": "Data exfiltration attempt detected — insider threat",
+      "content": "At 16:34, the DLP (Data Loss Prevention) policy triggered on an unusually large upload from a workstation in the Accounts department: 2.3 GB transferred to a personal Google Drive account over 22 minutes. The transfer included files matching the patterns invoice, payroll, and accounts-receivable.\n\nThe user's account was suspended immediately and the machine isolated from the network. Forensic investigation confirmed the files were uploaded by the logged-in user rather than by malware. Engaged HR and Legal as per the insider threat procedure. Reviewed access logs and found the user had accessed these files outside of normal working hours on the two preceding evenings.\n\nIncident escalated to the data breach response team. ICO notification being assessed under GDPR Article 33, which requires notification within 72 hours if the breach is likely to result in a risk to individuals' rights and freedoms. Preserved all forensic evidence in accordance with the legal hold procedure."
+    }
+  ]
+}
