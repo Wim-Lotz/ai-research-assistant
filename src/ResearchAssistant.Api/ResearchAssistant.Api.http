@@ -134,3 +134,50 @@ Content-Type: application/json
   "question": "Christopher Nolan films about the human mind",
   "contextLimit": 3
 }
+
+###
+
+# @timeout 120000
+
+POST http://localhost:5190/agent
+Content-Type: application/json
+
+{
+"question": "Show me all open critical tickets"
+}
+
+###
+
+# @timeout 120000
+
+POST {{host}}/ingest/raw
+Content-Type: application/json
+
+{
+  "text": "After investigating the user complaint of slow network speeds, we traced the issue to a misconfigured VLAN on the access switch. Reconfiguring the port resolved the issue immediately. Recommended updating the switch configuration documentation.",
+  "source": "engineer-notes"
+}
+
+###
+
+# @timeout 120000
+
+POST {{host}}/ingest/raw
+Content-Type: application/json
+
+{
+  "text": "At 11:42, all users in the London office lost access to the SharePoint intranet. Investigation revealed the Azure AD conditional access policy had been updated overnight, blocking legacy authentication tokens. Users were unable to authenticate until the policy was rolled back at 12:15.",
+  "source": "incident-log"
+}
+
+###
+
+# @timeout 120000
+
+POST {{host}}/ingest/raw
+Content-Type: application/json
+
+{
+  "text": "How to set up multi-factor authentication for new starters. Step 1: Ask the user to download Microsoft Authenticator on their phone. Step 2: Sign in to myaccount.microsoft.com and navigate to Security Info. Step 3: Click Add method, select Authenticator app, and follow the QR code setup wizard. Step 4: Test by signing out and back in.",
+  "source": "confluence"
+}

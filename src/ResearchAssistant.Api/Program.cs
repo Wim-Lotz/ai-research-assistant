@@ -1,4 +1,5 @@
 using ResearchAssistant.Api.Configuration;
+using ResearchAssistant.Api.Infrastructure;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddOpenApi();
 builder.AddAIConfiguration();
 builder.AddQdrantConfiguration();
 builder.AddMcpConfiguration();
+builder.Services.AddSingleton<IClassifierService, ClassifierService>();
 
 var app = builder.Build();
 
