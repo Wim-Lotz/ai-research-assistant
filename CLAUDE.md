@@ -37,11 +37,10 @@ This is a teaching and portfolio project. The goal is to learn the full AI engin
 **What each remaining roadmap item teaches:**
 - **Azure OpenAI** — swapping Ollama for the provider enterprises actually use. Teaches provider abstraction and cloud LLM integration.
 - **Source attribution** — a real enterprise requirement: did this answer come from the knowledge base or the model's training data? Relevant for compliance and audit trails.
-- **gRPC** — how AI services communicate in a microservices architecture at large companies.
 
 **The motivating query** (what this stack answers): *"Which open high-priority tickets have been unresolved the longest, and what does our knowledge base say about resolving that category of issue?"* This requires SQL (ticket status, priority, age) + semantic search (resolution procedures) working together through the agent.
 
-**Build order:** MCP Server → unstructured data ingestion → ML.NET classifier → Azure OpenAI → Avalonia UI → source attribution + gRPC.
+**Build order:** MCP Server → unstructured data ingestion → ML.NET classifier → Azure OpenAI → Avalonia UI → source attribution.
 
 ## Tech Stack
 
@@ -95,9 +94,7 @@ Vertical slice architecture under `/Features`. Each feature folder contains ever
 
 ## Remaining Roadmap
 
-1. **Azure OpenAI** — implement `AzureOpenAILanguageModelService`
-2. **Source attribution** — indicate whether answer came from knowledge base or model training data
-3. **gRPC** — expose agent as gRPC endpoint alongside REST
+1. **Source attribution** — indicate whether answer came from knowledge base or model training data
 
 ## Backlog
 
@@ -116,7 +113,14 @@ SQL handles exact structured queries ("open critical tickets assigned to James C
 
 ## Switching AI Provider
 
-Set `AI:Provider` in `appsettings.json` to `"Ollama"` (default) or `"AzureOpenAI"`. **Azure OpenAI is not implemented** — its service throws `NotImplementedException`. Only Ollama works.
+Set `AI:Provider` in `appsettings.json` to `"Ollama"` (default) or `"AzureOpenAI"`.
+
+For Azure OpenAI, also set:
+- `AzureOpenAI:Endpoint` — your resource endpoint (`https://<resource>.openai.azure.com/`)
+- `AzureOpenAI:DeploymentName` — your chat model deployment name (e.g. `gpt-4o`)
+- `AzureOpenAI:ApiKey` — store this in user secrets, not appsettings: `dotnet user-secrets set "AzureOpenAI:ApiKey" "<your-key>"`
+
+Embeddings always use Ollama (`nomic-embed-text`). Switching embedding providers would require re-ingesting all documents into Qdrant with the new vector dimensions.
 
 ## Code Style
 

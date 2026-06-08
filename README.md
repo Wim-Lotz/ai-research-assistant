@@ -37,9 +37,26 @@ API runs on `http://localhost:5190`
 
 ## Configuration
 
-All config in `appsettings.json`. Change `AI:Provider` from `Ollama` to `AzureOpenAI` to switch to cloud (not yet implemented).
+### Ollama (default)
+No extra config needed. Uses `mistral:7b` for generation and `nomic-embed-text` for embeddings.
+
+### Azure OpenAI
+Set `AI:Provider` to `"AzureOpenAI"` in `appsettings.json` and fill in your resource details:
+
+```json
+"AzureOpenAI": {
+  "Endpoint": "https://<your-resource>.openai.azure.com/",
+  "DeploymentName": "gpt-4o"
+}
+```
+
+Store your API key in user secrets (never in appsettings.json):
+```bash
+cd src/ResearchAssistant.Api
+dotnet user-secrets set "AzureOpenAI:ApiKey" "<your-key>"
+```
+
+Embeddings always use Ollama — switching embedding providers would require re-ingesting all documents with the new vector dimensions.
 
 ## Backlog
-- [ ] Azure OpenAI provider implementation
 - [ ] Source attribution (knowledge base vs model training data)
-- [ ] gRPC endpoints

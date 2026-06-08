@@ -1,4 +1,6 @@
-﻿using OllamaSharp;
+﻿using Azure;
+using Azure.AI.OpenAI;
+using OllamaSharp;
 using ResearchAssistant.Api.Infrastructure;
 
 namespace ResearchAssistant.Api.Configuration;
@@ -42,8 +44,17 @@ public static class AIConfiguration
 
     private static void RegisterAzureOpenAI(this WebApplicationBuilder builder)
     {
-        // Azure OpenAI implementation comes later
-        // Placeholder so the switch compiles
-        throw new NotImplementedException("AzureOpenAI provider not yet implemented");
+        var endpoint = builder.Configuration["AzureOpenAI:Endpoint"]
+                       ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is required");
+        var apiKey = builder.Configuration["AzureOpenAI:ApiKey"]
+                     ?? throw new InvalidOperationException("AzureOpenAI:ApiKey is required");
+        var deploymentName = builder.Configuration["AzureOpenAI:DeploymentName"]
+                             ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is required");
+
+        var azureClient = new AzureOpenAIClient(new Uri(endpoint), new AzureKeyCredential(apiKey));
+        var chatClient = azureClient.GetChatClient(deploymentName);
+
+        builder.Services.AddSingleton(chatClient);
+        builder.Services.AddScoped<ILanguageModelService, AzureOpenAILanguageModelService>();
     }
 }
