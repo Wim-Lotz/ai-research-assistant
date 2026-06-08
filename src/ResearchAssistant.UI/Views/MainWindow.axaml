@@ -1,0 +1,64 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ResearchAssistant.UI.ViewModels"
+        x:Class="ResearchAssistant.UI.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Research Assistant"
+        Width="860" Height="640"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vm:MainWindowViewModel />
+    </Window.DataContext>
+
+    <DockPanel>
+
+        <Border DockPanel.Dock="Bottom" Padding="12 8" BorderThickness="0 1 0 0" BorderBrush="#333333">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBox Grid.Column="0"
+                         Text="{Binding InputText}"
+                         Watermark="Ask the agent..."
+                         Margin="0 0 8 0"
+                         KeyDown="OnInputKeyDown" />
+                <Button Grid.Column="1"
+                        Content="Send"
+                        Command="{Binding SendCommand}" />
+            </Grid>
+        </Border>
+
+        <ScrollViewer Name="MessagesScroller" Padding="12 8">
+            <ItemsControl ItemsSource="{Binding Messages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="vm:ChatMessageViewModel">
+                        <Border Margin="0 0 0 10"
+                                Padding="12 8"
+                                CornerRadius="6"
+                                Background="#1E1E1E">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Role}"
+                                           FontWeight="SemiBold"
+                                           Foreground="#7B9FE0"
+                                           Margin="0 0 0 4" />
+                                <ItemsControl ItemsSource="{Binding ToolSteps}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding}"
+                                                       FontSize="11"
+                                                       Foreground="#666666"
+                                                       FontStyle="Italic"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0 0 0 2" />
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{Binding Content}"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+    </DockPanel>
+</Window>

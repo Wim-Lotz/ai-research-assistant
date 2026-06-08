@@ -23,4 +23,13 @@ public class OllamaLanguageModelService : ILanguageModelService
 
         return response.ToString();
     }
+
+    public async IAsyncEnumerable<string> StreamAsync(string prompt, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+    {
+        await foreach (var chunk in _client.GenerateAsync(prompt).WithCancellation(ct))
+        {
+            if (chunk?.Response is not null)
+                yield return chunk.Response;
+        }
+    }
 }

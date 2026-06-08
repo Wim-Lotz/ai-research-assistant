@@ -1,4 +1,5 @@
-﻿using ResearchAssistant.Api.Infrastructure;
+using System.Runtime.CompilerServices;
+using ResearchAssistant.Api.Infrastructure;
 
 namespace ResearchAssistant.Api.Features.Agent;
 
@@ -14,23 +15,99 @@ public class AgentRunner
         _tools = tools;
     }
 
-    public async Task<string> RunAsync(string question, CancellationToken ct = default)
+    public async IAsyncEnumerable<AgentStreamEvent> StreamAsync(string question, [EnumeratorCancellation] CancellationToken ct = default)
     {
         var systemPrompt = AgentPromptBuilder.BuildSystemPrompt(_tools);
         var userPrompt = AgentPromptBuilder.BuildUserPrompt(question);
         var conversationHistory = $"{systemPrompt}\n\n{userPrompt}";
+        var hadToolResults = false;
 
         for (int i = 0; i < MaxIterations; i++)
         {
             var response = await _languageModelService.GenerateAsync(conversationHistory, ct);
 
-            if (response.Contains("TOOL:") && response.Contains("INPUT:"))
-            {
-                var toolName = response.Split("TOOL:")[1].Split("\n")[0].Trim();
-                var toolInput = response.Split("INPUT:")[1].Trim();
+            bool hasAnswer = response.Contains("ANSWER:");
+            bool hasTool = response.Contains("TOOL:") && response.Contains("INPUT:");
+            bool answerFirst = hasAnswer && (!hasTool || response.LastIndexOf("ANSWER:") > response.LastIndexOf("TOOL:"));
 
-                if (toolInput.Contains("ANSWER:"))
-                    toolInput = toolInput.Split("ANSWER:")[0].Trim();
+            if (answerFirst)
+            {
+                yield return new AgentStreamEvent("token", Token: response.Split("ANSWER:", 2)[1].Trim());
+                yield return new AgentStreamEvent("done");
+                yield break;
+            }
+
+            if (hasTool)
+            {
+                var toolName = ExtractToolName(response);
+                var toolInput = ExtractToolInput(response);
+
+                yield return new AgentStreamEvent("tool_call", Tool: toolName, Input: toolInput);
+
+                var tool = _tools.FirstOrDefault(t => t.Name == toolName);
+                string toolResult;
+
+                if (tool is not null)
+                {
+                    toolResult = await tool.Execute(toolInput);
+                    conversationHistory += $"\n\n{response}\n\n{AgentPromptBuilder.BuildToolResultPrompt(toolName, toolResult)}";
+                    hadToolResults = true;
+                }
+                else
+                {
+                    toolResult = $"Tool '{toolName}' not found. Available tools: {string.Join(", ", _tools.Select(t => t.Name))}";
+                    conversationHistory += $"\n\n{response}\n\n{AgentPromptBuilder.BuildToolResultPrompt(toolName, toolResult)}";
+                }
+
+                yield return new AgentStreamEvent("tool_result", Tool: toolName, Result: toolResult);
+                continue;
+            }
+
+            conversationHistory += $"\n\n{response}\n\nPlease use the TOOL/INPUT format or provide an ANSWER:";
+        }
+
+        if (hadToolResults)
+        {
+            var synthesis = await _languageModelService.GenerateAsync(
+                conversationHistory + "\n\nYou have gathered enough information. Please provide your final ANSWER: now.",
+                ct);
+            var answer = synthesis.Contains("ANSWER:")
+                ? synthesis.Split("ANSWER:", 2)[1].Trim()
+                : "I was unable to synthesize an answer from the gathered information.";
+            yield return new AgentStreamEvent("token", Token: answer);
+        }
+        else
+        {
+            yield return new AgentStreamEvent("token", Token: "I was unable to answer your question after multiple attempts.");
+        }
+
+        yield return new AgentStreamEvent("done");
+    }
+
+    public async Task<string> RunAsync(string question, CancellationToken ct = default)
+    {
+        var systemPrompt = AgentPromptBuilder.BuildSystemPrompt(_tools);
+        var userPrompt = AgentPromptBuilder.BuildUserPrompt(question);
+        var conversationHistory = $"{systemPrompt}\n\n{userPrompt}";
+        var hadToolResults = false;
+
+        for (int i = 0; i < MaxIterations; i++)
+        {
+            var response = await _languageModelService.GenerateAsync(conversationHistory, ct);
+
+            bool hasAnswer = response.Contains("ANSWER:");
+            bool hasTool = response.Contains("TOOL:") && response.Contains("INPUT:");
+            bool answerFirst = hasAnswer && (!hasTool || response.LastIndexOf("ANSWER:") > response.LastIndexOf("TOOL:"));
+
+            if (answerFirst)
+            {
+                return response.Split("ANSWER:", 2)[1].Trim();
+            }
+
+            if (hasTool)
+            {
+                var toolName = ExtractToolName(response);
+                var toolInput = ExtractToolInput(response);
 
                 var tool = _tools.FirstOrDefault(t => t.Name == toolName);
 
@@ -39,25 +116,48 @@ public class AgentRunner
                     var toolResult = await tool.Execute(toolInput);
                     conversationHistory +=
                         $"\n\n{response}\n\n{AgentPromptBuilder.BuildToolResultPrompt(toolName, toolResult)}";
+                    hadToolResults = true;
                 }
                 else
                 {
+                    var toolResult = $"Tool '{toolName}' not found. Available tools: {string.Join(", ", _tools.Select(t => t.Name))}";
                     conversationHistory +=
-                        $"\n\nTool '{toolName}' not found. Available tools: {string.Join(", ", _tools.Select(t => t.Name))}";
+                        $"\n\n{response}\n\n{AgentPromptBuilder.BuildToolResultPrompt(toolName, toolResult)}";
                 }
 
                 continue;
             }
 
-            if (response.Contains("ANSWER:"))
-            {
-                return response.Split("ANSWER:")[1].Trim();
-            }
-
-            // LLM didn't follow format - nudge it
             conversationHistory += $"\n\n{response}\n\nPlease use the TOOL/INPUT format or provide an ANSWER:";
         }
 
+        if (hadToolResults)
+        {
+            var synthesis = await _languageModelService.GenerateAsync(
+                conversationHistory + "\n\nYou have gathered enough information. Please provide your final ANSWER: now.",
+                ct);
+            return synthesis.Contains("ANSWER:")
+                ? synthesis.Split("ANSWER:", 2)[1].Trim()
+                : "I was unable to synthesize an answer from the gathered information.";
+        }
+
         return "I was unable to answer your question after multiple attempts.";
+    }
+
+    private static string ExtractToolName(string response)
+    {
+        var index = response.LastIndexOf("TOOL:");
+        return response[(index + "TOOL:".Length)..].Split(new[] { '\n', '\r' }, 2)[0].Trim();
+    }
+
+    private static string ExtractToolInput(string response)
+    {
+        var index = response.LastIndexOf("INPUT:");
+        var afterInput = response[(index + "INPUT:".Length)..];
+        var firstLine = afterInput.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+                                  .FirstOrDefault()?.Trim() ?? string.Empty;
+        return firstLine.Contains("ANSWER:")
+            ? firstLine.Split("ANSWER:")[0].Trim()
+            : firstLine;
     }
 }

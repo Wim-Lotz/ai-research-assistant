@@ -1,6 +1,6 @@
 # Research Assistant
 
-A local AI-powered research assistant built with C# to learn and demonstrate Generative AI, Vector Databases, RAG, Agentic AI, MCP, and ML.NET.
+A local AI-powered helpdesk assistant built with C# to learn and demonstrate Generative AI, Vector Databases, RAG, Agentic AI, MCP, and ML.NET.
 
 ## Prerequisites
 
@@ -21,26 +21,25 @@ ollama pull nomic-embed-text
 cd docker && docker compose up -d
 ```
 
-**3. Set up the database**
+SQL schema and seed data are applied automatically on first start.
 
-Connect to SQL Server on `localhost:1433` with `sa` / `Research@Assistant123` and run:
-- `docker/sql/01_schema.sql`
-- `docker/sql/02_seed.sql`
-
-**4. Run the API**
+**3. Run the API**
 ```bash
 dotnet run --project src/ResearchAssistant.Api/ResearchAssistant.Api.csproj
+```
+
+**4. Run the UI**
+```bash
+dotnet run --project src/ResearchAssistant.UI/ResearchAssistant.UI.csproj
 ```
 
 API runs on `http://localhost:5190`
 
 ## Configuration
 
-All config in `appsettings.json`. Change `AI:Provider` from `Ollama` to `AzureOpenAI` to switch to cloud.
+All config in `appsettings.json`. Change `AI:Provider` from `Ollama` to `AzureOpenAI` to switch to cloud (not yet implemented).
 
 ## Backlog
-- [ ] Agent response should indicate source (knowledge base vs training knowledge)
 - [ ] Azure OpenAI provider implementation
+- [ ] Source attribution (knowledge base vs model training data)
 - [ ] gRPC endpoints
-- [ ] ML.NET document classifier
-- [ ] Avalonia UI

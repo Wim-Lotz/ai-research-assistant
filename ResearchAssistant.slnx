@@ -4,5 +4,6 @@
     <Project Path="src/ResearchAssistant.Api/ResearchAssistant.Api.csproj" />
     <Project Path="src/ResearchAssistant.ML/ResearchAssistant.ML.csproj" />
     <Project Path="src/ResearchAssistant.Shared/ResearchAssistant.Shared.csproj" />
+    <Project Path="src/ResearchAssistant.UI/ResearchAssistant.UI.csproj" />
   </Folder>
 </Solution>

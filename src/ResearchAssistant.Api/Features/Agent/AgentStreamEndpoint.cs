@@ -1,28 +1,26 @@
-﻿using FastEndpoints;
+using System.Text.Json;
+using FastEndpoints;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using ResearchAssistant.Api.Infrastructure;
 
 namespace ResearchAssistant.Api.Features.Agent;
 
-public class AgentRequest
+public class AgentStreamRequest
 {
     public string Question { get; set; } = string.Empty;
 }
 
-public class AgentResponse
+public class AgentStreamEndpoint : Endpoint<AgentStreamRequest>
 {
-    public string Answer { get; set; } = string.Empty;
-}
+    private static readonly JsonSerializerOptions SseJsonOptions = new(JsonSerializerDefaults.Web);
 
-public class AgentEndpoint : Endpoint<AgentRequest, AgentResponse>
-{
     private readonly ILanguageModelService _languageModelService;
     private readonly IEmbeddingService _embeddingService;
     private readonly IDocumentService _documentService;
     private readonly McpClient _mcpClient;
 
-    public AgentEndpoint(
+    public AgentStreamEndpoint(
         ILanguageModelService languageModelService,
         IEmbeddingService embeddingService,
         IDocumentService documentService,
@@ -36,11 +34,11 @@ public class AgentEndpoint : Endpoint<AgentRequest, AgentResponse>
 
     public override void Configure()
     {
-        Post("/agent");
+        Post("/agent/stream");
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(AgentRequest req, CancellationToken ct)
+    public override async Task HandleAsync(AgentStreamRequest req, CancellationToken ct)
     {
         var tools = new List<AgentTool>
         {
@@ -79,12 +77,41 @@ public class AgentEndpoint : Endpoint<AgentRequest, AgentResponse>
 
                     return text ?? "No results found.";
                 }
-            },
+            }
         };
 
-        var runner = new AgentRunner(_languageModelService, tools);
-        var answer = await runner.RunAsync(req.Question, ct);
+        HttpContext.Response.ContentType = "text/event-stream";
+        HttpContext.Response.Headers.CacheControl = "no-cache";
+        HttpContext.Response.Headers.Connection = "keep-alive";
 
-        await Send.OkAsync(new AgentResponse { Answer = answer }, ct);
+        await HttpContext.Response.Body.FlushAsync(ct);
+
+        var runner = new AgentRunner(_languageModelService, tools);
+
+        try
+        {
+            await foreach (var evt in runner.StreamAsync(req.Question, ct))
+            {
+                var json = JsonSerializer.Serialize(evt, SseJsonOptions);
+                await HttpContext.Response.WriteAsync($"data: {json}\n\n", ct);
+                await HttpContext.Response.Body.FlushAsync(ct);
+            }
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+        }
+        catch (Exception ex)
+        {
+            try
+            {
+                var error = new AgentStreamEvent("error", Token: ex.Message);
+                var json = JsonSerializer.Serialize(error, SseJsonOptions);
+                await HttpContext.Response.WriteAsync($"data: {json}\n\n", CancellationToken.None);
+                await HttpContext.Response.Body.FlushAsync(CancellationToken.None);
+            }
+            catch
+            {
+            }
+        }
     }
 }

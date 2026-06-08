@@ -20,28 +20,26 @@ This means:
 - Ollama model pulls are documented as a single copy-paste block
 - The README must be good enough that someone who has never seen the project can clone it and have it running within minutes
 
-**The current manual SQL setup step violates this** — `docker/sql/01_schema.sql` and `02_seed.sql` must be wired into Docker Compose init scripts before the project is considered complete.
-
-The README is written last, once the full stack is built, and covers: prerequisites, one-command startup, what each component does, and example queries including the Altered Carbon-style query.
-
 ## Project Purpose
 
 This is a teaching and portfolio project. The goal is to learn the full AI engineering stack to a level where the developer can help companies implement AI solutions. Breadth of AI concepts matters more than polish. Always explain *why* a pattern exists and what problem it solves in a real company context, not just how to implement it.
 
+**Domain:** A company IT helpdesk (NexusSupport). Structured data (tickets, employees, customers) lives in SQL Server. Unstructured data (resolution guides, procedures) lives in Qdrant. The agent queries both to answer helpdesk questions.
+
 **What has been learned so far:**
 - **RAG** — the most common pattern companies ask for: "we have documents, we want to query them with AI."
 - **ReAct agentic loops** — how you go from a single LLM call to an AI that can reason and act over multiple steps.
+- **MCP Server** — the emerging standard for giving agents access to tools and data sources. Teaches structured SQL queries from an agent, and hybrid retrieval when combined with Qdrant semantic search.
+- **Unstructured data ingestion** — ingesting helpdesk documents into Qdrant to enable semantic search over resolution procedures.
+- **ML.NET classifier** — classifying ingested documents on their way into Qdrant so semantic search can be scoped by document type.
+- **Avalonia UI** — desktop chat interface with streaming SSE responses, showing tool steps in real time.
 
 **What each remaining roadmap item teaches:**
-- **MCP Server** — the emerging standard for giving agents access to tools and data sources. Teaches structured SQL queries from an agent, and hybrid retrieval when combined with Qdrant semantic search.
-- **Unstructured data ingestion** — sourcing real sci-fi reviews and articles to stress-test the semantic search side of the stack. Structured SQL data (movies) does not require semantic search — unstructured text does.
-- **ML.NET classifier** — classifying ingested unstructured documents on their way into Qdrant (e.g. "is this a review, an article, a plot summary?"). Only needed once unstructured data exists — ML classification adds nothing when data already has structured metadata.
 - **Azure OpenAI** — swapping Ollama for the provider enterprises actually use. Teaches provider abstraction and cloud LLM integration.
-- **Avalonia UI** — building what the business stakeholder actually sees; also teaches streaming responses.
 - **Source attribution** — a real enterprise requirement: did this answer come from the knowledge base or the model's training data? Relevant for compliance and audit trails.
 - **gRPC** — how AI services communicate in a microservices architecture at large companies.
 
-**The motivating query** (what this stack will be able to answer when complete): *"Give me sci-fi movies from the last 20 years with good reviews — cyberpunk style, like Altered Carbon."* This requires SQL (genre, year, rating) + semantic search (themes, tone, style) + ML classification (scoping search to the right document types) all working together through the agent.
+**The motivating query** (what this stack answers): *"Which open high-priority tickets have been unresolved the longest, and what does our knowledge base say about resolving that category of issue?"* This requires SQL (ticket status, priority, age) + semantic search (resolution procedures) working together through the agent.
 
 **Build order:** MCP Server → unstructured data ingestion → ML.NET classifier → Azure OpenAI → Avalonia UI → source attribution + gRPC.
 
@@ -51,7 +49,7 @@ C# 12 / .NET 10 REST API using **FastEndpoints** (not minimal APIs or controller
 
 ## Required Setup
 
-Infrastructure (Qdrant + SQL Server) runs in Docker:
+Infrastructure (Qdrant + SQL Server + DAB/MCP) runs in Docker — schema and seed data are applied automatically on first start:
 
 ```bash
 cd docker && docker compose up -d
@@ -64,8 +62,6 @@ ollama pull mistral:7b
 ollama pull nomic-embed-text
 ```
 
-SQL schema and seed data must be applied manually — connect to `localhost:1433` (SA / Research@Assistant123) and run `docker/sql/01_schema.sql` then `docker/sql/02_seed.sql`.
-
 ## Running the API
 
 ```bash
@@ -73,6 +69,12 @@ dotnet run --project src/ResearchAssistant.Api/ResearchAssistant.Api.csproj
 ```
 
 API listens on `http://localhost:5190`.
+
+## Running the UI
+
+```bash
+dotnet run --project src/ResearchAssistant.UI/ResearchAssistant.UI.csproj
+```
 
 ## Architecture
 
@@ -85,47 +87,32 @@ Vertical slice architecture under `/Features`. Each feature folder contains ever
 - GET `/health` — health check
 - POST `/generate` — raw LLM generation
 - POST `/ingest` — ingest text into Qdrant
-- POST `/ingest/movies` — ingest movies from SQL Server into Qdrant
+- POST `/ingest/helpdesk` — ingest helpdesk documents from JSON into Qdrant
 - POST `/search` — semantic search against Qdrant
 - POST `/rag` — full RAG pipeline (embed → search → augment → generate)
-- POST `/agent` — ReAct agentic loop with tool calling
+- POST `/agent` — ReAct agentic loop with tool calling (returns complete response)
+- POST `/agent/stream` — ReAct agentic loop with SSE streaming (yields tool steps + answer tokens)
 
 ## Remaining Roadmap
 
-1. **MCP Server** — DAB (Data API Builder) in Docker on top of SQL Server, MCP server in Docker, new agent tool `query_movies_database`
-2. **Unstructured data ingestion** — source real sci-fi reviews and articles (e.g. Roger Ebert reviews, Wikipedia plot summaries), ingest into Qdrant
-3. **ML.NET classifier** — classify unstructured documents on ingestion (review vs article vs plot summary) so semantic search can be scoped by document type
-4. **Azure OpenAI** — implement `AzureOpenAILanguageModelService`
-5. **Avalonia UI** — desktop chat interface wired to REST API
+1. **Azure OpenAI** — implement `AzureOpenAILanguageModelService`
+2. **Source attribution** — indicate whether answer came from knowledge base or model training data
+3. **gRPC** — expose agent as gRPC endpoint alongside REST
 
 ## Backlog
 
-- Agent response should indicate source (knowledge base vs training knowledge)
 - Clean old test documents from Qdrant (machine learning, vector db, docker text entries)
-- Add gRPC endpoints alongside REST
 
 ## Data
 
-### Current (dev/demo only)
-SQL Server contains 15 movies with directors, actors, genres, reviews. Too small to be genuinely useful — exists only to validate the pipeline.
+### SQL Server — NexusSupport
+Structured helpdesk data: Departments, Employees, Customers, Tickets. 50 tickets across 10 customers and 15 employees. Queried via MCP/DAB using OData filter expressions.
 
-### Target dataset (production-scale)
-The goal is a dataset large enough to actually use as a personal movie/TV assistant.
-
-**Structured data → SQL Server via IMDb datasets** (`datasets.imdb.com`)
-- Free, non-commercial use, downloadable TSV files
-- Covers movies and TV: titles, genres, ratings, cast, crew, release years
-- Millions of entries — replaces the current 15-movie seed data
-
-**Unstructured text → Qdrant via CMU Movie Summary Corpus**
-- ~42,000 Wikipedia plot summaries, public domain research dataset
-- Long-form text covering plot, themes, tone — enables semantic queries like "cyberpunk style, like Altered Carbon"
-- Supplement with Wikipedia API for TV series and newer titles not in the corpus
-
-**TMDB API** as a supplement for richer metadata (overviews, poster URLs, streaming availability) if needed.
+### Qdrant — helpdesk documents
+Unstructured resolution guides and procedures, classified by document type via ML.NET. Queried via semantic search.
 
 ### Why both stores
-SQL handles exact structured queries ("sci-fi movies after 2005 with rating > 7"). Qdrant handles semantic queries ("cyberpunk themes, dystopian future, noir aesthetic"). The agent uses both and combines the results.
+SQL handles exact structured queries ("open critical tickets assigned to James Crawford"). Qdrant handles semantic queries ("how do we handle ransomware incidents?"). The agent uses both and combines the results.
 
 ## Switching AI Provider
 
